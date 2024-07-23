@@ -12,10 +12,10 @@ export default defineConfig({
     // 组件自动导入
     AutoImport({
       imports: ['vue', 'vue-router', 'pinia'],
-      dirs: [
-        './src/stores' // 这里指定你的 Pinia 仓库文件夹路径
-      ],
-      dts: 'auto-imports.d.ts'
+      // dirs: [
+      //   './src/stores' // 这里指定你的 Pinia 仓库文件夹路径
+      // ],
+      dts: true
     }),
     // element ui 组件自动注册
     Components({

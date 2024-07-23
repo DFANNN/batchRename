@@ -9,12 +9,31 @@
       <el-table-column prop="relativePath" label="Relative Path"></el-table-column>
     </el-table>
 
-    <el-button type="primary" @click="submit">提交</el-button>
+    <el-form :inline="true" :model="formInline" class="demo-form-inline">
+      <el-form-item label="修改文件地址：">
+        <el-input v-model="formInline.path" clearable />
+      </el-form-item>
+      <el-form-item label="查询：">
+        <el-input v-model="formInline.old_substring" clearable />
+      </el-form-item>
+      <el-form-item label="替换为：">
+        <el-input v-model="formInline.new_substring" clearable />
+      </el-form-item>
+    </el-form>
+
+    <el-button type="primary" @click="submit">执行</el-button>
   </div>
 </template>
 
 <script setup lang="ts">
+import { renameFiles } from '@/api/api'
 import { ElMessage } from 'element-plus'
+
+const formInline = ref({
+  path: '',
+  old_substring: '',
+  new_substring: ''
+})
 
 const fileList = ref<Array<{ name: string; relativePath: string }>>([])
 
@@ -26,27 +45,8 @@ const handleChange = (file: any) => {
 }
 
 const submit = async () => {
-  try {
-    const response = await fetch('http://localhost:5000/rename-files', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        path: '/path/to/your/folder', // You might need to adjust this
-        files: fileList.value
-      })
-    })
-
-    const data = await response.json()
-    if (data.error) {
-      ElMessage.error(data.error)
-    } else {
-      ElMessage.success('Files renamed successfully!')
-    }
-  } catch (error) {
-    ElMessage.error('Failed to rename files.')
-  }
+  const { data: res } = await renameFiles(formInline.value)
+  console.log(res)
 }
 </script>
 
