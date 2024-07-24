@@ -31,19 +31,22 @@
           <div>></div>
         </div>
       </div>
-      <el-button type="primary" class="confirm-btn">确定</el-button>
+      <el-button type="primary" class="confirm-btn" @click="confirm">确定</el-button>
     </el-dialog>
   </div>
 </template>
 
 <script setup lang="ts">
 import { getDisk, currentDiskFile } from '@/api/api'
+import { ElMessage } from 'element-plus'
 
 interface IDisck {
   name: string
   path: string
   type: number
 }
+
+const emit = defineEmits(['getSonViewPath'])
 
 // modal开关
 const dialogVisible = ref(false)
@@ -65,26 +68,41 @@ const getDiskList = async () => {
   const { data: res } = await getDisk()
   if (res.code === 0) {
     diskList.value = res.data
+    form.value.path = ''
   }
 }
 
-const upLevelPath = ref('')
-
 const getDiskFile = async (item: IDisck) => {
-  console.log(item)
+  const str1 = item.path.lastIndexOf('\\')
+  let str2 = item.path.slice(0, str1)
+  if (str2.indexOf('\\') === -1) {
+    str2 = str2.concat('\\')
+  }
 
-  // 字符串分割成数组的方法
-
+  form.value.path = item.path
   const { data: res } = await currentDiskFile({ path: item.path })
   if (res.code === 0) {
-    upLevelPath.value = item.path
     diskList.value = res.data
     diskList.value.unshift({
       name: '返回上一级',
-      path: upLevelPath.value,
+      path: str2,
       type: 0
     })
   }
+}
+
+// 确定按钮
+const confirm = () => {
+  if (!form.value.path) return ElMessage.error('请先选择文件夹！')
+  emit('getSonViewPath', form.value.path)
+  cancel()
+}
+
+// 取消按钮
+const cancel = () => {
+  dialogVisible.value = false
+  form.value.path = ''
+  diskList.value = []
 }
 </script>
 

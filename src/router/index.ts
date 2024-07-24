@@ -8,7 +8,10 @@ const routes = [
   {
     path: '/layout',
     component: () => import('@/layout/index.vue'),
-    children: [{ path: 'replaceText', component: () => import('@/views/replaceText/index.vue') }]
+    children: [
+      { path: 'replaceText', component: () => import('@/views/replaceText/index.vue') },
+      { path: 'insertionText', component: () => import('@/views/insertionText/index.vue') }
+    ]
   }
 ]
 

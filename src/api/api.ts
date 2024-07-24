@@ -14,3 +14,13 @@ export function getDisk() {
 export function currentDiskFile(data: any) {
   return service.post('/current-disk-file', data)
 }
+
+// 获取到当前文件夹下的文件/电影
+export function pathFiles(data: any) {
+  return service.post('/path_files', data)
+}
+
+// 插入文本的接口
+export function renameInsertionText(data: any) {
+  return service.post('/batch-rename-insertion', data)
+}
