@@ -11,11 +11,23 @@
     >
       <el-form :model="form" label-position="top">
         <el-form-item label="文件夹地址：">
-          <el-input v-model="form.path" />
+          <el-select v-model="form.path" placeholder="请选择文件夹位置">
+            <el-option
+              v-for="item in diskOptions"
+              :key="item.path"
+              :label="item.path"
+              :value="item.path"
+              @click="changeDisk(item)"
+            />
+          </el-select>
         </el-form-item>
       </el-form>
       <div class="disk-box">
-        <div class="disk-item" v-for="item in diskList" @click="getDiskFile(item)">
+        <div
+          class="disk-item"
+          v-for="item in diskList"
+          @click="getDiskFile(item)"
+        >
           <div class="file-icon">
             <svg viewBox="0 0 1024 1024" width="20" height="20">
               <path
@@ -31,79 +43,88 @@
           <div>></div>
         </div>
       </div>
-      <el-button type="primary" class="confirm-btn" @click="confirm">确定</el-button>
+      <el-button type="primary" class="confirm-btn" @click="confirm"
+        >确定
+      </el-button>
     </el-dialog>
   </div>
 </template>
 
 <script setup lang="ts">
-import { getDisk, currentDiskFile } from '@/api/api'
-import { ElMessage } from 'element-plus'
+import { currentDiskFile, getDisk } from "@/api/api";
+import { ElMessage } from "element-plus";
 
 interface IDisck {
-  name: string
-  path: string
-  type: number
+  name: string;
+  path: string;
+  type: number;
 }
 
-const emit = defineEmits(['getSonViewPath'])
+const emit = defineEmits(["getSonViewPath"]);
 
 // modal开关
-const dialogVisible = ref(false)
+const dialogVisible = ref(false);
 // 本地磁盘
-const diskList = ref<IDisck[]>([])
+const diskList = ref<IDisck[]>([]);
+const diskOptions = ref<IDisck[]>([]);
 
 const form = ref({
-  path: ''
-})
+  path: "",
+});
 
 // 打开dialog
 const openDialog = () => {
-  dialogVisible.value = true
-  getDiskList()
-}
+  dialogVisible.value = true;
+  getDiskList();
+};
 
 // 获取本地磁盘信息的函数
 const getDiskList = async () => {
-  const { data: res } = await getDisk()
+  const { data: res } = await getDisk();
   if (res.code === 0) {
-    diskList.value = res.data
-    form.value.path = ''
+    diskList.value = res.data;
+    diskOptions.value = res.data;
+    form.value.path = "";
   }
-}
+};
+
+// 下拉框改变
+const changeDisk = async (item: IDisck) => {
+  getDiskFile(item);
+};
 
 const getDiskFile = async (item: IDisck) => {
-  const str1 = item.path.lastIndexOf('\\')
-  let str2 = item.path.slice(0, str1)
-  if (str2.indexOf('\\') === -1) {
-    str2 = str2.concat('\\')
+  const str1 = item.path.lastIndexOf("\\");
+  let str2 = item.path.slice(0, str1);
+  if (str2.indexOf("\\") === -1) {
+    str2 = str2.concat("\\");
   }
 
-  form.value.path = item.path
-  const { data: res } = await currentDiskFile({ path: item.path })
+  form.value.path = item.path;
+  const { data: res } = await currentDiskFile({ path: item.path });
   if (res.code === 0) {
-    diskList.value = res.data
+    diskList.value = res.data;
     diskList.value.unshift({
-      name: '返回上一级',
+      name: "返回上一级",
       path: str2,
-      type: 0
-    })
+      type: 0,
+    });
   }
-}
+};
 
 // 确定按钮
 const confirm = () => {
-  if (!form.value.path) return ElMessage.error('请先选择文件夹！')
-  emit('getSonViewPath', form.value.path)
-  cancel()
-}
+  if (!form.value.path) return ElMessage.error("请先选择文件夹！");
+  emit("getSonViewPath", form.value.path);
+  cancel();
+};
 
 // 取消按钮
 const cancel = () => {
-  dialogVisible.value = false
-  form.value.path = ''
-  diskList.value = []
-}
+  dialogVisible.value = false;
+  form.value.path = "";
+  diskList.value = [];
+};
 </script>
 
 <style scoped lang="less">
@@ -111,6 +132,7 @@ const cancel = () => {
   height: 500px;
   border: 1px solid #cdd0d6;
   overflow-y: scroll;
+
   .disk-item {
     cursor: pointer;
     height: 50px;
@@ -119,9 +141,11 @@ const cancel = () => {
     display: flex;
     align-items: center;
     font-size: 16px;
+
     .file-icon {
       margin-right: 40px;
     }
+
     .disk-name {
       flex: 1;
     }
@@ -131,6 +155,7 @@ const cancel = () => {
     }
   }
 }
+
 .confirm-btn {
   width: 100%;
   margin-top: 20px;
